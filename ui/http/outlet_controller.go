@@ -25,7 +25,7 @@ func (ctrl OutletController) CreateOutlet(ctx *gin.Context) {
 	var createDto dto.Outlet
 	err := ctx.ShouldBindJSON(&createDto)
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	outlet, err := ctrl.app.CreateOutlet(&createDto)
@@ -39,17 +39,21 @@ func (ctrl OutletController) CreateOutlet(ctx *gin.Context) {
 func (ctrl OutletController) GetByLocation(ctx *gin.Context) {
 	locationId, err := strconv.Atoi(ctx.Param("location_id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 	if limit == 0 {
 		limit = 10
 	}
-	offset, _ := strconv.Atoi(ctx.Query("offset"))
+	offset, err := strconv.Atoi(ctx.Query("offset"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
+		return
+	}
 	devices, err := ctrl.app.GetOutletsByLocation(locationId)
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, ctrl.responder.SuccessList(len(devices), limit, offset, devices))

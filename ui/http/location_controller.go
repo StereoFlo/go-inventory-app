@@ -23,7 +23,7 @@ func NewLocationController(app application.Application, responder *infrastructur
 func (ctrl LocationController) GetLocations(ctx *gin.Context) {
 	locs, err := ctrl.app.GetRootLocations()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, ctrl.responder.SuccessList(len(locs), len(locs), 0, locs))
@@ -33,12 +33,12 @@ func (ctrl LocationController) CreateLocation(ctx *gin.Context) {
 	var createDto dto.LocationDto
 	err := ctx.ShouldBindJSON(&createDto)
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	err = createDto.Validate()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
 		return
 	}
 
@@ -55,14 +55,14 @@ func (ctrl LocationController) CreateLocation(ctx *gin.Context) {
 	if len(createDto.Children) > 0 {
 		locationsDto, err := ctrl.app.GetLocationsByIds(createDto.Children)
 		if err != nil {
-			ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+			ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 			return
 		}
 		location.Children = locationsDto
 	}
 	_, err = ctrl.app.CreateLocation(&location)
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, ctrl.responder.Success(location))
@@ -71,12 +71,12 @@ func (ctrl LocationController) CreateLocation(ctx *gin.Context) {
 func (ctrl LocationController) GetLocation(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("location_id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	locs, err := ctrl.app.GetLocation(&id)
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, ctrl.responder.Success(locs))
@@ -85,7 +85,7 @@ func (ctrl LocationController) GetLocation(ctx *gin.Context) {
 func (ctrl LocationController) GetRootLocations(ctx *gin.Context) {
 	locations, err := ctrl.app.GetRootLocations()
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err))
+		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 		return
 	}
 

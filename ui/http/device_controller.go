@@ -50,7 +50,7 @@ func (ctrl DeviceController) GetDevices(ctx *gin.Context) {
 func (ctrl DeviceController) GetDeviceById(ctx *gin.Context) {
 	deviceId, err := strconv.Atoi(ctx.Param("device_id"))
 	if err != nil {
-		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
+		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	device, err := ctrl.app.GetDeviceById(deviceId)
@@ -76,7 +76,7 @@ func (ctrl DeviceController) CreateDevice(ctx *gin.Context) {
 
 	deviceByName, err := ctrl.app.GetDeviceByNameAndIp(*createDto.NetName, *createDto.IP)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
+		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 		return
 	}
 
@@ -109,7 +109,7 @@ func (ctrl DeviceController) CreateDevice(ctx *gin.Context) {
 	}
 	_, err = ctrl.app.CreateDevice(&device)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, ctrl.responder.Fail(err.Error()))
+		ctx.JSON(http.StatusServiceUnavailable, ctrl.responder.Fail(err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusOK, ctrl.responder.Success(device))
