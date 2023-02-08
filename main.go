@@ -15,6 +15,7 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
+	"time"
 )
 
 func init() {
@@ -26,6 +27,7 @@ func init() {
 var isDebug = false
 
 func main() {
+	go infrastructure.SendBroadcast(time.Second * 5)
 	db := getDb()
 	isDebug = os.Getenv("APP_ENV") != "prod"
 	locRepo := repository.NewLocationRepository(db)
@@ -52,7 +54,10 @@ func main() {
 	router.NoRoute(func(c *gin.Context) {
 		c.JSON(404, responder.Fail("Not found"))
 	})
-	log.Fatal(router.Run(":" + os.Getenv("API_PORT")))
+	err := router.Run(":" + os.Getenv("API_PORT"))
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getDb() *gorm.DB {
