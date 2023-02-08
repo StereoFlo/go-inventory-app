@@ -39,7 +39,7 @@ func SendBroadcast(sleep time.Duration) error {
 	}
 }
 
-func getBroadcast(subnet *net.IPNet) net.IP {
+func getIpBroadcast(subnet *net.IPNet) net.IP {
 	n := len(subnet.IP)
 	out := make(net.IP, n)
 	var m byte
@@ -69,7 +69,7 @@ func getIpData() ([]*IP, error) {
 				inet, ok := a.(*net.IPNet)
 				if ok && !v.IP.IsLoopback() && inet.IP.To4() != nil {
 					_, ipnet, _ := net.ParseCIDR(v.String())
-					br := getBroadcast(ipnet)
+					br := getIpBroadcast(ipnet)
 					ip := &IP{
 						IP:        inet.IP.To4().String(),
 						Broadcast: br.String(),
