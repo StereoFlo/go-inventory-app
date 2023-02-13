@@ -31,7 +31,7 @@ func SendBroadcast(sleep time.Duration) error {
 			if err != nil {
 				return err
 			}
-			_, err = pc.WriteTo([]byte(v.IP+os.Getenv("API_PORT")), addr)
+			_, err = pc.WriteTo([]byte(v.IP+":"+os.Getenv("API_PORT")), addr)
 			if err != nil {
 				return err
 			}
