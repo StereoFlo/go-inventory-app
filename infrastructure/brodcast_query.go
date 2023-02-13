@@ -59,28 +59,37 @@ func getIpData() ([]*IP, error) {
 	}
 	var ips []*IP
 	for _, i := range interfaces {
-		addrs, err := i.Addrs()
+		ips, err = getIps(i)
 		if err != nil {
 			log.Println(fmt.Errorf("localAddresses: %+v\n", err.Error()))
-			continue
-		}
-		for _, a := range addrs {
-			switch v := a.(type) {
-			case *net.IPNet:
-				inet, ok := a.(*net.IPNet)
-				if ok && !v.IP.IsLoopback() && inet.IP.To4() != nil {
-					_, ipnet, _ := net.ParseCIDR(v.String())
-					br := getIpBroadcast(ipnet)
-					ip := &IP{
-						IP:        inet.IP.To4().String(),
-						Broadcast: br.String(),
-					}
-					ips = append(ips, ip)
-				}
-			}
-
+			return nil, err
 		}
 	}
 
 	return ips, nil
+}
+
+func getIps(i net.Interface) ([]*IP, error) {
+	addrs, err := i.Addrs()
+	if err != nil {
+		return nil, err
+	}
+	var ips []*IP
+	for _, a := range addrs {
+		switch v := a.(type) {
+		case *net.IPNet:
+			inet, ok := a.(*net.IPNet)
+			if ok && !v.IP.IsLoopback() && inet.IP.To4() != nil {
+				_, ipnet, _ := net.ParseCIDR(v.String())
+				br := getIpBroadcast(ipnet)
+				ip := &IP{
+					IP:        inet.IP.To4().String(),
+					Broadcast: br.String(),
+				}
+				ips = append(ips, ip)
+			}
+		}
+
+	}
+	return ips, err
 }
