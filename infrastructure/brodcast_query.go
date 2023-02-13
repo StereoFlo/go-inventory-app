@@ -14,11 +14,11 @@ type IP struct {
 }
 
 func SendBroadcast(sleep time.Duration) error {
-	pc, err := net.ListenPacket("udp4", ":2712")
+	packetConn, err := net.ListenPacket("udp4", ":2712")
 	if err != nil {
 		return err
 	}
-	defer pc.Close()
+	defer packetConn.Close()
 
 	for {
 		ips, err := getIpData()
@@ -31,7 +31,7 @@ func SendBroadcast(sleep time.Duration) error {
 			if err != nil {
 				return err
 			}
-			_, err = pc.WriteTo([]byte(v.IP+":"+os.Getenv("API_PORT")), addr)
+			_, err = packetConn.WriteTo([]byte(v.IP+":"+os.Getenv("API_PORT")), addr)
 			if err != nil {
 				return err
 			}
@@ -41,10 +41,10 @@ func SendBroadcast(sleep time.Duration) error {
 }
 
 func getIpBroadcast(subnet *net.IPNet) net.IP {
-	n := len(subnet.IP)
-	out := make(net.IP, n)
+	ipLen := len(subnet.IP)
+	out := make(net.IP, ipLen)
 	var m byte
-	for i := 0; i < n; i++ {
+	for i := 0; i < ipLen; i++ {
 		m = subnet.Mask[i] ^ 0xff
 		out[i] = subnet.IP[i] | m
 
