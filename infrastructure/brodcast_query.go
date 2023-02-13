@@ -75,16 +75,16 @@ func getIps(i net.Interface) ([]*IP, error) {
 		return nil, err
 	}
 	var ips []*IP
-	for _, a := range addrs {
-		switch v := a.(type) {
+	for _, addr := range addrs {
+		switch v := addr.(type) {
 		case *net.IPNet:
-			inet, ok := a.(*net.IPNet)
+			inet, ok := addr.(*net.IPNet)
 			if ok && !v.IP.IsLoopback() && inet.IP.To4() != nil {
 				_, ipnet, _ := net.ParseCIDR(v.String())
-				br := getIpBroadcast(ipnet)
+				broadcast := getIpBroadcast(ipnet)
 				ip := &IP{
 					IP:        inet.IP.To4().String(),
-					Broadcast: br.String(),
+					Broadcast: broadcast.String(),
 				}
 				ips = append(ips, ip)
 			}
