@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -13,8 +14,12 @@ type IP struct {
 	Broadcast string
 }
 
-func SendBroadcast(sleep time.Duration) error {
-	packetConn, err := net.ListenPacket("udp4", ":2712")
+func SendBroadcast() error {
+	sleep, err := strconv.Atoi(os.Getenv("BROADCAST_SLEEP"))
+	if err != nil {
+		return err
+	}
+	packetConn, err := net.ListenPacket("udp4", ":"+os.Getenv("BROADCAST_PORT"))
 	if err != nil {
 		return err
 	}
@@ -27,7 +32,7 @@ func SendBroadcast(sleep time.Duration) error {
 		}
 
 		for _, v := range ips {
-			addr, err := net.ResolveUDPAddr("udp4", v.Broadcast+":2712")
+			addr, err := net.ResolveUDPAddr("udp4", v.Broadcast+":"+os.Getenv("BROADCAST_PORT"))
 			if err != nil {
 				return err
 			}
@@ -36,7 +41,7 @@ func SendBroadcast(sleep time.Duration) error {
 				return err
 			}
 		}
-		time.Sleep(sleep)
+		time.Sleep(time.Second * time.Duration(sleep))
 	}
 }
 

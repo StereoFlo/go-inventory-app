@@ -15,7 +15,6 @@ import (
 	"gorm.io/gorm/logger"
 	"log"
 	"os"
-	"time"
 )
 
 func init() {
@@ -27,7 +26,7 @@ func init() {
 var isDebug = false
 
 func main() {
-	go infrastructure.SendBroadcast(time.Second * 5)
+	go infrastructure.SendBroadcast()
 	db := getDb()
 	isDebug = os.Getenv("APP_ENV") != "prod"
 	locRepo := repository.NewLocationRepository(db)
