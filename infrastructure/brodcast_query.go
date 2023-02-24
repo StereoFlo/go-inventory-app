@@ -1,8 +1,6 @@
 package infrastructure
 
 import (
-	"fmt"
-	"log"
 	"net"
 	"os"
 	"strconv"
@@ -26,7 +24,7 @@ func SendBroadcast() error {
 	defer packetConn.Close()
 
 	for {
-		ips, err := getIpData()
+		ips, err := getLocalInterfaces()
 		if err != nil {
 			return err
 		}
@@ -45,7 +43,7 @@ func SendBroadcast() error {
 	}
 }
 
-func getIpBroadcast(subnet *net.IPNet) net.IP {
+func getBroadcastIp(subnet *net.IPNet) net.IP {
 	ipLen := len(subnet.IP)
 	out := make(net.IP, ipLen)
 	var m byte
@@ -57,16 +55,15 @@ func getIpBroadcast(subnet *net.IPNet) net.IP {
 	return out
 }
 
-func getIpData() ([]*IP, error) {
+func getLocalInterfaces() ([]*IP, error) {
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		return nil, err
 	}
 	var ips []*IP
 	for _, i := range interfaces {
-		ips, err = getIps(i)
+		ips, err = getLocalIPs(i)
 		if err != nil {
-			log.Println(fmt.Errorf("localAddresses: %+v\n", err.Error()))
 			return nil, err
 		}
 	}
@@ -74,7 +71,7 @@ func getIpData() ([]*IP, error) {
 	return ips, nil
 }
 
-func getIps(i net.Interface) ([]*IP, error) {
+func getLocalIPs(i net.Interface) ([]*IP, error) {
 	addrs, err := i.Addrs()
 	if err != nil {
 		return nil, err
@@ -86,7 +83,7 @@ func getIps(i net.Interface) ([]*IP, error) {
 			inet, ok := addr.(*net.IPNet)
 			if ok && !v.IP.IsLoopback() && inet.IP.To4() != nil {
 				_, ipnet, _ := net.ParseCIDR(v.String())
-				broadcast := getIpBroadcast(ipnet)
+				broadcast := getBroadcastIp(ipnet)
 				ip := &IP{
 					IP:        inet.IP.To4().String(),
 					Broadcast: broadcast.String(),
