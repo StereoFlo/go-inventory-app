@@ -24,7 +24,7 @@ func SendBroadcast() error {
 	defer packetConn.Close()
 
 	for {
-		ips, err := getLocalInterfaces()
+		ips, err := getInterfacesIPs()
 		if err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func getBroadcastIp(subnet *net.IPNet) net.IP {
 	return out
 }
 
-func getLocalInterfaces() ([]*ip, error) {
+func getInterfacesIPs() ([]*ip, error) {
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		return nil, err
