@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type IP struct {
+type ip struct {
 	IP        string
 	Broadcast string
 }
@@ -55,12 +55,12 @@ func getBroadcastIp(subnet *net.IPNet) net.IP {
 	return out
 }
 
-func getLocalInterfaces() ([]*IP, error) {
+func getLocalInterfaces() ([]*ip, error) {
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		return nil, err
 	}
-	var ips []*IP
+	var ips []*ip
 	for _, i := range interfaces {
 		ips, err = getLocalIPs(i)
 		if err != nil {
@@ -71,12 +71,12 @@ func getLocalInterfaces() ([]*IP, error) {
 	return ips, nil
 }
 
-func getLocalIPs(i net.Interface) ([]*IP, error) {
+func getLocalIPs(i net.Interface) ([]*ip, error) {
 	addrs, err := i.Addrs()
 	if err != nil {
 		return nil, err
 	}
-	var ips []*IP
+	var ips []*ip
 	for _, addr := range addrs {
 		switch v := addr.(type) {
 		case *net.IPNet:
@@ -84,7 +84,7 @@ func getLocalIPs(i net.Interface) ([]*IP, error) {
 			if ok && !v.IP.IsLoopback() && inet.IP.To4() != nil {
 				_, ipnet, _ := net.ParseCIDR(v.String())
 				broadcast := getBroadcastIp(ipnet)
-				ip := &IP{
+				ip := &ip{
 					IP:        inet.IP.To4().String(),
 					Broadcast: broadcast.String(),
 				}
